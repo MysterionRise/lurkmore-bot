@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+/token
+.idea/*
+.idea/preferred-vcs.xml
+.idea/preferred-vcs.xml
