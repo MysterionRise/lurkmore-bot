@@ -8,8 +8,10 @@ import shutil
 from io import BytesIO
 import datetime
 
+
 def help(bot, update):
-    update.message.reply_text(text="""
+    chat_id = update.message.chat.id
+    bot.send_message(chat_id, text="""
         <b>Lurkmore Bot Commands:</b>
         
         If you want to get full functionality of this bot, you need to enable him as an administrator
@@ -19,20 +21,25 @@ def help(bot, update):
         /setup - you could ask your bot to update your chat at specific time or every X units of time
         """, parse_mode='HTML')
 
+
 def setup(bot, update):
-    update.message.reply_text(text="""
-        <b>Setting of the Lurkmore Bot</b>
+    chat_id = update.message.chat.id
+    bot.send_message(chat_id, text="""
+        <b>Settings of the Lurkmore Bot</b>
 
         TBD
         """, parse_mode='HTML')
 
-one_hour = datetime.timedelta(hours=1.0)
+
+two_hours = datetime.timedelta(hours=2.0)
 last_time = datetime.datetime.utcnow()
+
 
 def updateChat(bot, update):
     chat_id = update.message.chat.id
-    if datetime.datetime.utcnow() - last_time < one_hour:
-        bot.send_message(chat_id, text="I can't let you do that now. Remaining time is {}".format(datetime.datetime.utcnow() - last_time))
+    if datetime.datetime.utcnow() - last_time < two_hours:
+        bot.send_message(chat_id, text="I can't let you do that now. Remaining time is {}".format(
+            two_hours - (datetime.datetime.utcnow() - last_time)))
     else:
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
