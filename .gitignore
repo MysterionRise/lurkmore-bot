@@ -103,3 +103,4 @@ ENV/
 .idea/*
 .idea/preferred-vcs.xml
 .idea/preferred-vcs.xml
+/logo.png
