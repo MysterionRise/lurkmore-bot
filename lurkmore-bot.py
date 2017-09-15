@@ -31,26 +31,25 @@ def setup(bot, update):
         """, parse_mode='HTML')
 
 
-two_hours = datetime.timedelta(hours=2.0)
+six_hours = datetime.timedelta(hours=6.0)
 last_time = datetime.datetime.utcnow()
 
 
 def updateChat(bot, update):
     chat_id = update.message.chat.id
-    if datetime.datetime.utcnow() - last_time < two_hours:
+    if datetime.datetime.utcnow() - last_time < six_hours:
         bot.send_message(chat_id, text="I can't let you do that now. Remaining time is {}".format(
-            two_hours - (datetime.datetime.utcnow() - last_time)))
+            six_hours - (datetime.datetime.utcnow() - last_time)))
     else:
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
-        print(title)
-        print(r.url)
-        print(chat_id)
+        unquoted_titile = requests.utils.unquote("http://lurkmore.co/" + title)
+        print(unquoted_titile)
         try:
             bot.set_chat_title(chat_id, title)
-            msg = bot.send_message(chat_id, r.url)
-            print(msg.message_id)
+            msg = bot.send_message(chat_id, unquoted_titile)
+            bot.pin_chat_message(chat_id, msg.message_id)
             find = html.find("div", {"class": "thumbinner"}).find("img")['src']
             x = "http:" + find
             print(x)
@@ -60,7 +59,6 @@ def updateChat(bot, update):
             del picture
             raw_bytes = BytesIO(open('logo.png', 'rb').read())
             bot.set_chat_photo(update.message.chat.id, photo=raw_bytes)
-            bot.pin_chat_message(chat_id, msg.message_id)
         except telegram.TelegramError as te:
             print(te)
 
