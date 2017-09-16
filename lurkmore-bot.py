@@ -32,19 +32,20 @@ def setup(bot, update):
 
 
 six_hours = datetime.timedelta(hours=6.0)
-last_time = datetime.datetime.utcnow()
-
 
 def updateChat(bot, update):
+    global last_time
     chat_id = update.message.chat.id
     if datetime.datetime.utcnow() - last_time < six_hours:
         bot.send_message(chat_id, text="I can't let you do that now. Remaining time is {}".format(
             six_hours - (datetime.datetime.utcnow() - last_time)))
     else:
+        last_time = datetime.datetime.utcnow()
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
-        unquoted_titile = requests.utils.unquote("http://lurkmore.co/" + title)
+        unquoted_titile = r.url
+        # requests.utils.unquote("http://lurkmore.co/" + title)
         print(unquoted_titile)
         try:
             bot.set_chat_title(chat_id, title)
@@ -64,6 +65,8 @@ def updateChat(bot, update):
 
 
 def main(argv):
+    global last_time
+    last_time = datetime.datetime.utcnow()
     updater = Updater("")
 
     updater.dispatcher.add_handler(CommandHandler('help', help))
