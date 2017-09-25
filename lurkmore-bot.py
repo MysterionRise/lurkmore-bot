@@ -1,4 +1,5 @@
 from telegram.ext import Updater, CommandHandler, Job
+from telegram.ext.dispatcher import run_async
 
 import telegram
 import sys
@@ -33,6 +34,7 @@ def setup(bot, update):
 
 six_hours = datetime.timedelta(hours=6.0)
 
+@run_async
 def updateChat(bot, update):
     global last_time
     chat_id = update.message.chat.id
