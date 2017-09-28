@@ -9,9 +9,7 @@ import shutil
 from io import BytesIO
 import datetime
 
-#todo webhook
-
-
+@run_async
 def help(bot, update):
     chat_id = update.message.chat.id
     bot.send_message(chat_id, text="""
@@ -33,10 +31,11 @@ def setup(bot, update):
         TBD
         """, parse_mode='HTML')
 
+# TBD
+#deltaByChatId = 
 
 six_hours = datetime.timedelta(hours=6.0)
 
-@run_async
 def updateChat(bot, update):
     global last_time
     chat_id = update.message.chat.id
