@@ -7,7 +7,8 @@ import requests
 import bs4
 import shutil
 from io import BytesIO
-import datetime
+from PIL import Image
+import numpy as np
 
 @run_async
 def help(bot, update):
@@ -33,30 +34,35 @@ def setup(bot, update):
 
 @run_async
 def updateChat(bot, update):
+    try:
+        chat_id = update.message.chat.id
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
         unquoted_titile = r.url
         print(unquoted_titile)
-        try:
-            bot.set_chat_title(chat_id, title)
-            msg = bot.send_message(chat_id, unquoted_titile)
-            bot.pin_chat_message(chat_id, msg.message_id)
-            find = html.find("div", {"class": "thumbinner"}).find("img")['src']
-            x = "http:" + find
-            print(x)
-            picture = requests.get(x, stream=True)
-            with open('logo.png', 'wb') as out_file:
-                shutil.copyfileobj(picture.raw, out_file)
-            del picture
-            raw_bytes = BytesIO(open('logo.png', 'rb').read())
-            bot.set_chat_photo(update.message.chat.id, photo=raw_bytes)
-        except telegram.TelegramError as te:
-            print(te)
+        bot.set_chat_title(chat_id, title)
+        msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
+        bot.pin_chat_message(chat_id, msg.message_id)
+        find = html.find("div", {"class": "thumbinner"}).find("img")['src']
+        x = "http:" + find
+        print(x)
+        picture = requests.get(x, stream=True)
+        with open('logo.png', 'wb') as out_file:
+            shutil.copyfileobj(picture.raw, out_file)
+        del picture
+        im = Image.open('logo.png')
+        sqrWidth = np.ceil(np.sqrt(im.size[0] * im.size[1])).astype(int)
+        im_resize = im.resize((sqrWidth, sqrWidth))
+        im_resize.save('output.png')
+        raw_bytes = BytesIO(open('output.png', 'rb').read())
+        bot.set_chat_photo(update.message.chat.id, photo=raw_bytes)
+    except Exception as e:
+        print(e)
 
 
 def main(argv):
-    updater = Updater("")
+    updater = Updater("407464699:AAFTjBiUt-26Fpd6qpv3OwEwgvlVIREGSeM")
 
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('start', help))
