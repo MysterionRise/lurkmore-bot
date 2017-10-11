@@ -1,13 +1,13 @@
-from telegram.ext import Updater, CommandHandler, Job
+from telegram.ext import Updater, CommandHandler
 from telegram.ext.dispatcher import run_async
 
-import telegram
 import sys
 import requests
 import bs4
 import shutil
 from io import BytesIO
 from PIL import Image
+from urllib.parse import unquote
 import numpy as np
 
 @run_async
@@ -20,16 +20,6 @@ def help(bot, update):
 
         /help - show this help
         /updateChat - update the chat with random Lurkmore page
-        /setup - you could ask your bot to update your chat at specific time or every X units of time
-        """, parse_mode='HTML')
-
-
-def setup(bot, update):
-    chat_id = update.message.chat.id
-    bot.send_message(chat_id, text="""
-        <b>Settings of the Lurkmore Bot</b>
-
-        TBD
         """, parse_mode='HTML')
 
 @run_async
@@ -39,7 +29,7 @@ def updateChat(bot, update):
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
-        unquoted_titile = r.url
+        unquoted_titile = unquote(r.url)
         print(unquoted_titile)
         bot.set_chat_title(chat_id, title)
         msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
@@ -67,7 +57,6 @@ def main(argv):
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('start', help))
     updater.dispatcher.add_handler(CommandHandler('updateChat', updateChat))
-    updater.dispatcher.add_handler(CommandHandler('setup', setup))
     updater.start_polling()
     updater.idle()
 
