@@ -10,6 +10,7 @@ from PIL import Image
 from urllib.parse import unquote
 import numpy as np
 
+
 @run_async
 def help(bot, update):
     chat_id = update.message.chat.id
@@ -21,6 +22,7 @@ def help(bot, update):
         /help - show this help
         /updateChat - update the chat with random Lurkmore page
         """, parse_mode='HTML')
+
 
 @run_async
 def updateChat(bot, update):
@@ -34,7 +36,8 @@ def updateChat(bot, update):
         bot.set_chat_title(chat_id, title)
         msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
         bot.pin_chat_message(chat_id, msg.message_id)
-        find = html.find("div", {"class": "thumbinner"}).find("img")['src']
+        find_all = html.findAll("img", {"class": "thumbimage"})
+        find = find_all[0]['src'].replace("thumb", "").rsplit('/', 1)[0]
         x = "http:" + find
         print(x)
         picture = requests.get(x, stream=True)
@@ -46,13 +49,13 @@ def updateChat(bot, update):
         im_resize = im.resize((sqrWidth, sqrWidth))
         im_resize.save('output.png')
         raw_bytes = BytesIO(open('output.png', 'rb').read())
-        bot.set_chat_photo(update.message.chat.id, photo=raw_bytes)
+        bot.set_chat_photo(update.message.chat.id, photo=raw_bytes, timeout=3000)
     except Exception as e:
         print(e)
 
 
 def main(argv):
-    updater = Updater("407464699:AAFTjBiUt-26Fpd6qpv3OwEwgvlVIREGSeM")
+    updater = Updater("")
 
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('start', help))
