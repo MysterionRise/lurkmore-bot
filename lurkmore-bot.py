@@ -33,9 +33,9 @@ def updateChat(bot, update):
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
         unquoted_titile = unquote(r.url)
         print(unquoted_titile)
-        bot.set_chat_title(chat_id, title)
         msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
         bot.pin_chat_message(chat_id, msg.message_id)
+        bot.set_chat_title(chat_id, title)
         find_all = html.findAll("img", {"class": "thumbimage"})
         find = find_all[0]['src'].replace("thumb", "").rsplit('/', 1)[0]
         x = "http:" + find
