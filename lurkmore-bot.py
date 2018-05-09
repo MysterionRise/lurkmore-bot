@@ -24,6 +24,8 @@ def help(bot, update):
         """, parse_mode='HTML')
 
 
+prev_titles = set()
+
 @run_async
 def updateChat(bot, update):
     try:
@@ -31,6 +33,11 @@ def updateChat(bot, update):
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
+        while title in prev_titles:
+            r = requests.get('http://lurkmore.co/Служебная:Random')
+            html = bs4.BeautifulSoup(r.text, "html.parser")
+            title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
+        prev_titles.add(title)
         unquoted_titile = unquote(r.url)
         print(unquoted_titile)
         msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
