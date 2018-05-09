@@ -33,7 +33,7 @@ def updateChat(bot, update):
         r = requests.get('http://lurkmore.co/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
-        while title in prev_titles:
+        while title in prev_titles or "Копипаста" in title:
             r = requests.get('http://lurkmore.co/Служебная:Random')
             html = bs4.BeautifulSoup(r.text, "html.parser")
             title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
