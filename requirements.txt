@@ -1,0 +1,6 @@
+lurkmore-bot
+requests
+python-telegram-bot
+bs4
+Pillow
+numpy

@@ -20,3 +20,10 @@ To be fully operational, bot should get admin rights. E.g.
 [1]: https://telegram.org/
 [2]: http://lurkmore.co/
 [3]: LurkmoreBot.png
+
+
+### How to install requirements:
+
+```
+pip3 install -r requirements.txt
+```
