@@ -62,7 +62,7 @@ def updateChat(update, context):
 
 
 def main(argv):
-    updater = Updater("")
+    updater = Updater("", use_context=True)
 
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('start', help))
