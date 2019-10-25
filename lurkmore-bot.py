@@ -14,7 +14,7 @@ import numpy as np
 @run_async
 def help(update, context):
     chat_id = update.message.chat.id
-    bot.send_message(chat_id, text="""
+    context.bot.send_message(chat_id, text="""
         <b>Lurkmore Bot Commands:</b>
         
         If you want to get full functionality of this bot, you need to enable him as an administrator
@@ -40,9 +40,9 @@ def updateChat(update, context):
         prev_titles.add(title)
         unquoted_titile = unquote(r.url)
         print(unquoted_titile)
-        msg = bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
-        bot.pin_chat_message(chat_id, msg.message_id)
-        bot.set_chat_title(chat_id, title)
+        msg = context.bot.send_message(chat_id, unquoted_titile, parse_mode='HTML')
+        context.bot.pin_chat_message(chat_id, msg.message_id)
+        context.bot.set_chat_title(chat_id, title)
         find_all = html.findAll("img", {"class": "thumbimage"})
         find = find_all[0]['src'].replace("thumb", "").rsplit('/', 1)[0]
         x = "http:" + find
@@ -56,7 +56,7 @@ def updateChat(update, context):
         im_resize = im.resize((sqrWidth, sqrWidth))
         im_resize.save('output.png')
         raw_bytes = BytesIO(open('output.png', 'rb').read())
-        bot.set_chat_photo(update.message.chat.id, photo=raw_bytes, timeout=3000)
+        context.bot.set_chat_photo(update.message.chat.id, photo=raw_bytes, timeout=3000)
     except Exception as e:
         print(e)
 
