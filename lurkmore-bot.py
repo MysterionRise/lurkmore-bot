@@ -12,7 +12,7 @@ import numpy as np
 
 
 @run_async
-def help(bot, update):
+def help(update, context):
     chat_id = update.message.chat.id
     bot.send_message(chat_id, text="""
         <b>Lurkmore Bot Commands:</b>
@@ -27,7 +27,7 @@ def help(bot, update):
 prev_titles = set()
 
 @run_async
-def updateChat(bot, update):
+def updateChat(update, context):
     try:
         chat_id = update.message.chat.id
         r = requests.get('http://lurkmore.co/Служебная:Random')
