@@ -30,11 +30,11 @@ prev_titles = set()
 def updateChat(update, context):
     try:
         chat_id = update.message.chat.id
-        r = requests.get('http://lurkmore.co/Служебная:Random')
+        r = requests.get('http://lurkmore.to/Служебная:Random')
         html = bs4.BeautifulSoup(r.text, "html.parser")
         title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
         while title in prev_titles or "Копипаста" in title:
-            r = requests.get('http://lurkmore.co/Служебная:Random')
+            r = requests.get('http://lurkmore.to/Служебная:Random')
             html = bs4.BeautifulSoup(r.text, "html.parser")
             title = html.title.text.replace("Lurkmore", "").replace("—", "").strip()
         prev_titles.add(title)
