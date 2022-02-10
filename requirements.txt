@@ -3,3 +3,5 @@ python-telegram-bot
 bs4
 Pillow
 numpy
+black
+isort
