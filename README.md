@@ -9,7 +9,7 @@ This is the [Telegram][1] bot, that changes title, picture and pinned message of
 
 ```/help``` - Show some help information
 
-```/updateChat``` - Main manual function, that updates chat with new title, picture and pin a preview message. 
+```/updateChat``` - Main manual function, that updates chat with new title, picture and pin a preview message.
 
 ### Troubleshooting:
 
