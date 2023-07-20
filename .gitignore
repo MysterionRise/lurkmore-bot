@@ -107,3 +107,4 @@ ENV/
 /output.png
 
 .DS_Store
+settings.py

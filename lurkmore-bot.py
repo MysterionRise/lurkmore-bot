@@ -10,6 +10,8 @@ from PIL import Image
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
+import settings
+
 # Define constants
 # RANDOM_PAGE_URL = "http://lurkmore.to/Служебная:Random"
 
@@ -213,7 +215,7 @@ async def set_chat_photo(context, chat_id):
 def main():
     application = (
         ApplicationBuilder()
-        .token("407464699:AAFcjyRzae42VL8cW55o3IRUGSVbKoaTac0")
+        .token(settings.TOKEN)
         .build()
     )
 
