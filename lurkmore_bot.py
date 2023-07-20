@@ -1,6 +1,4 @@
-import glob
 import logging
-import os
 import random
 from io import BytesIO
 
@@ -13,9 +11,6 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import settings
 
 # Define constants
-# RANDOM_PAGE_URL = "http://lurkmore.to/Служебная:Random"
-
-RANDOM_PAGE_URL = "https://en.wikipedia.org/wiki/Special:Random"
 TIMEOUT = 3000
 prev_titles = set()
 
@@ -76,17 +71,18 @@ class Wikipedia(Portal):
     def get_image_url(self, url):
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
-        # Look for 'infobox vevent' first
-        image_container = soup.find(class_="infobox vevent")
-        if not image_container:
-            # If not found, look for 'infobox-full-data'
-            image_container = soup.find(class_="infobox-full-data")
-        if not image_container:
-            # If not found, look for 'infobox vcard'
-            image_container = soup.find(class_="infobox vcard")
-        if not image_container:
-            # If not found, look for 'infobox vcard'
-            image_container = soup.find(class_="thumb")
+        image_container = soup.find(
+            lambda tag: tag.name == "table"
+            and tag.get("class")
+            in [
+                ["infobox", "vevent"],
+                ["infobox-image"],
+                ["infobox", "vcard"],
+                ["thumb"],
+                ["infobox", "vcard", "biography"],
+                ["infobox-full-data"],
+            ]
+        )
         if image_container:
             img = image_container.find("img")
             if img and img.get("src"):
@@ -132,8 +128,8 @@ async def update_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         image_url = portal.get_image_url(url)
         if image_url:
             logger.info("Got image: %s", image_url)
-            save_resized_image(image_url)
-            await set_chat_photo(context, chat_id)
+            img_data = get_resized_image(image_url)
+            await set_chat_photo(context, chat_id, img_data)
         else:
             logger.info("No image found")
     except Exception as e:
@@ -166,58 +162,26 @@ async def update_chat_title(context, chat_id, title):
     await context.bot.set_chat_title(chat_id, title)
 
 
-def get_first_image_url(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    images = soup.find_all("img")
-    if images:
-        # get 'src' attribute of the first image tag
-        first_image_url = images[4].get("src")
-        # prepend with 'http:' if necessary
-        if first_image_url.startswith("//"):
-            first_image_url = "http:" + first_image_url
-        return first_image_url
-    else:
-        return None
-
-
-def save_resized_image(url):
+def get_resized_image(url):
     headers = {"User-Agent": "Lurkmore4000Bot/1.0 (@lurkmore_4000_bot)"}
     response = requests.get(url, headers=headers, stream=True)
 
     with Image.open(BytesIO(response.content)) as img:
-        size = max(img.size)
-        # get the file extension from the URL
-        file_extension = os.path.splitext(url)[1]
-        # strip the '.' from the extension
-        file_extension = file_extension.lstrip(".")
-        # convert to jpg if file_extension is empty
-        if file_extension == "" or file_extension == "jpg":
-            file_extension = "JPEG"
-        img.resize((size, size)).save(
-            "output." + file_extension, file_extension.upper()
-        )
+        img = img.convert("RGB")  # Convert image to RGB mode
+        size = (max(img.size), max(img.size))
+        img.thumbnail(size)
+        img_data = BytesIO()
+        img.save(img_data, format="JPEG")
+        img_data.seek(0)
+    return img_data
 
 
-async def set_chat_photo(context, chat_id):
-    # find all 'output' files
-    files = glob.glob("output.*")
-    if not files:
-        return
-    # select the most recently modified file
-    latest_file = max(files, key=os.path.getmtime)
-    with open(latest_file, "rb") as img_file:
-        await context.bot.set_chat_photo(chat_id, photo=BytesIO(img_file.read()))
-    # delete the file after setting chat photo
-    os.remove(latest_file)
+async def set_chat_photo(context, chat_id, img_data):
+    await context.bot.set_chat_photo(chat_id, photo=img_data)
 
 
 def main():
-    application = (
-        ApplicationBuilder()
-        .token(settings.TOKEN)
-        .build()
-    )
+    application = ApplicationBuilder().token(settings.TOKEN).build()
 
     start_handler = CommandHandler("start", help_command)
     application.add_handler(start_handler)
