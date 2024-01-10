@@ -14,9 +14,7 @@ import settings
 TIMEOUT = 3000
 prev_titles = set()
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +32,21 @@ class Portal:
 
 class Lurkmore(Portal):
     async def get_random_page(self):
-        # Implementation for Lurkmore
-        # TODO since Lurkmore is down, we need to find another option
-        pass
+        while True:
+            title, url = self.get_page_title()
+            if title not in self.prev_titles:
+                break
+        self.prev_titles.add(title)
+        return title, url
+
+    def get_page_title(self):
+        response = requests.get(self.base_url, allow_redirects=True)
+        logger.info("Got response: %s", response.url)
+        html = BeautifulSoup(response.text, "html.parser")
+        return (
+            html.title.text.replace("Lurkmore", "").replace("-", "").strip(),
+            response.url,
+        )
 
     def get_image_url(self, url):
         # Implementation for Lurkmore
@@ -62,9 +72,7 @@ class Wikipedia(Portal):
         logger.info("Got response: %s", response.url)
         html = BeautifulSoup(response.text, "html.parser")
         return (
-            html.title.text.replace("Wikipedia", "").replace("-", "")
-            # .replace("—", "")
-            .strip(),
+            html.title.text.replace("Wikipedia", "").replace("-", "").strip(),
             response.url,
         )
 
@@ -96,6 +104,7 @@ class Wikipedia(Portal):
 
 PORTALS = {
     "wikipedia": Wikipedia("https://en.wikipedia.org/wiki/Special:Random"),
+    "lurkmore": Lurkmore("https://neolurk.org/wiki/Служебная:Случайная_страница"),
 }
 
 
@@ -112,9 +121,7 @@ async def set_portal(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.chat_data["portal"] = PORTALS[portal_name]
         await context.bot.send_message(chat_id, f"Set portal to {portal_name}")
     else:
-        await context.bot.send_message(
-            chat_id, "Invalid portal name. Please try again."
-        )
+        await context.bot.send_message(chat_id, "Invalid portal name. Please try again.")
 
 
 async def update_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
